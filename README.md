@@ -1,0 +1,1 @@
+# ind_Currency_Strength
