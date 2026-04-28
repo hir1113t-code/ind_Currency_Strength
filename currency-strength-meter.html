@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Currency Strength Meter</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 13px;
+    background: #fff;
+    color: #333;
+  }
+
+  /* TOP YELLOW NAV BAR */
+  .topnav {
+    background: #f5c400;
+    padding: 6px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .topnav-links {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex-wrap: wrap;
+  }
+
+  .topnav-links a {
+    color: #333;
+    text-decoration: none;
+    font-size: 12px;
+    padding: 2px 6px;
+  }
+
+  .topnav-links a:hover { text-decoration: underline; }
+  .topnav-links span { color: #777; font-size: 12px; }
+
+  .login-btn {
+    background: #fff;
+    border: 1px solid #ccc;
+    padding: 4px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    color: #333;
+    font-family: Arial, sans-serif;
+  }
+
+  /* MAIN CONTENT */
+  .main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 14px 10px;
+  }
+
+  h1 {
+    font-size: 20px;
+    font-weight: bold;
+    color: #000;
+    margin-bottom: 8px;
+  }
+
+  .intro-text {
+    font-size: 13px;
+    color: #333;
+    line-height: 1.5;
+    margin-bottom: 8px;
+    max-width: 620px;
+  }
+
+  .trade-link {
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+
+  .trade-link a { color: #0000cc; }
+
+  /* METER BOX */
+  .meter-box {
+    border: 1px solid #ccc;
+    padding: 10px 20px 14px 20px;
+    margin-bottom: 10px;
+    background: #fff;
+    display: inline-block;
+    width: 100%;
+  }
+
+  .meter-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 0;
+    justify-content: flex-start;
+  }
+
+  /* Each currency column */
+  .currency-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 90px;
+    padding: 0 8px;
+  }
+
+  /* Stacked bar container */
+  .bar-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 54px;
+    height: 80px;
+    justify-content: flex-end;
+    margin-bottom: 4px;
+    gap: 1px;
+  }
+
+  .bar-segment {
+    width: 54px;
+    border: 1px solid rgba(0,0,0,0.15);
+  }
+
+  .currency-label {
+    font-size: 12px;
+    font-weight: bold;
+    color: #333;
+    margin-top: 2px;
+    text-align: center;
+  }
+
+  /* TIMESTAMP */
+  .timestamp {
+    text-align: center;
+    font-size: 11px;
+    color: #666;
+    margin-top: 6px;
+    margin-bottom: 20px;
+  }
+
+  /* LOADING */
+  .loading {
+    text-align: center;
+    padding: 30px;
+    color: #666;
+    font-size: 13px;
+  }
+
+  /* INFO SECTIONS */
+  .info-section {
+    margin-bottom: 14px;
+    max-width: 650px;
+  }
+
+  .info-section h2 {
+    font-size: 15px;
+    font-weight: bold;
+    color: #000;
+    margin-bottom: 5px;
+  }
+
+  .info-section p {
+    font-size: 13px;
+    color: #333;
+    line-height: 1.55;
+  }
+
+  .info-section p a { color: #0000cc; }
+</style>
+</head>
+<body>
+
+<!-- TOP YELLOW NAV BAR -->
+<div class="topnav">
+  <div class="topnav-links">
+    <a href="#">Members area</a><span>|</span>
+    <a href="#">Currency Strength Meter</a><span>|</span>
+    <a href="#">Dow jones</a><span>|</span>
+    <a href="#">Crude oil</a><span>|</span>
+    <a href="#">Spread betting</a><span>|</span>
+    <a href="#">Daytrading</a><span>|</span>
+    <a href="#">Forex</a><span>|</span>
+    <a href="#">Advertise!</a>
+  </div>
+  <button class="login-btn">Login to message board</button>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <h1>LiveCharts.co.uk Currency Strength Meter</h1>
+
+  <p class="intro-text">
+    Our currency strength meter gives you a quick visual guide to which currencies are currently strong,
+    and which ones are weak. The meter measures the strength of all forex cross pairs and applies calculations
+    on them to determine the overall strength for each individual currency. Please see notes below for further details.
+  </p>
+
+  <p class="trade-link">Trade currency strength on a <a href="#">free demo account at IC Markets »</a></p>
+
+  <!-- LOADING STATE -->
+  <div id="loading" class="loading">Loading currency data...</div>
+
+  <!-- METER BOXES -->
+  <div id="meters" style="display:none">
+    <div class="meter-box">
+      <div class="meter-row" id="row1"></div>
+    </div>
+    <div class="meter-box">
+      <div class="meter-row" id="row2"></div>
+    </div>
+    <div class="timestamp" id="timestamp"></div>
+  </div>
+
+  <!-- INFO SECTIONS -->
+  <div class="info-section">
+    <h2>How Does The Currency Strength Meter Work?</h2>
+    <p>
+      The currency strength meter takes readings from every forex pair over the last 24 hours, and applies
+      calculations to each. It then bundles together each the associated pairs to an individual currency
+      (eg, <a href="#">EUR/USD</a>, <a href="#">GBP/USD</a>, <a href="#">USD/JPY</a>,
+      <a href="#">EUR/GBP</a>, <a href="#">AUD/USD</a> etc) and finds the current strength.
+    </p>
+  </div>
+
+  <div class="info-section">
+    <h2>How Can This Help Me?</h2>
+    <p>
+      It is useful as a quick guide to which currencies you might want to trade, and which might be worth
+      staying away from. For instance, if a certain currency is very strong, and another suddenly turns
+      weaker, you may find a trading opportunity. Such deviation between pairs usually indicates momentum.
+      Conversely, if two currencies are weak, strong or average strength, there is often a range or sideways
+      movement happening. You might want to stay away from trading those pairs.
+    </p>
+  </div>
+
+  <div class="info-section">
+    <h2>How Often Is The Meter Updated?</h2>
+    <p>
+      It checks our real time forex data every minute and determines the current strength.
+      Any changes will appear if you refresh the page.
+    </p>
+  </div>
+
+  <div class="info-section">
+    <h2>It's Still Not Clear, Can You Show Me A Real Example?</h2>
+    <p>
+      Sure, let me show you a couple taken right now.
+      <strong><a href="#">Go to this page and see our examples »</a></strong>
+    </p>
+    <p style="margin-top:8px">
+      This is different to a currency index. Instruments such as the
+      <a href="#">US Dollar Index</a> are weighted indexes which compare the Dollar's value relative to
+      a basket of other currencies. For instance, at the time of writing this the US Dollar index is
+      weighted as follows: Euro 57.6%, Yen 13.6%, British Pound 11.9%, Canadian Dollar 9.1%,
+      Swedish Krona 4.2%, Swiss Franc 3.6%.
+    </p>
+    <p style="margin-top:8px">
+      Our meter is based on more pairs, and takes the average gain or loss over a couple of timeframes
+      to give an overall strength. It doesn't calculate a price like an index does, it gauges the
+      strength on a numerical scale.
+    </p>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+//  CURRENCIES — exact match to livecharts (10, 2 rows of 5)
+// ============================================================
+const ROW1 = ['eur','gbp','usd','aud','jpy'];
+const ROW2 = ['chf','nzd','cad','nok','dkk'];
+const ALL  = [...ROW1, ...ROW2];
+const LABELS = {
+  eur:'EURO', gbp:'GBP', usd:'USD', aud:'AUD', jpy:'JPY',
+  chf:'CHF',  nzd:'NZD', cad:'CAD', nok:'NOK', dkk:'DKK'
+};
+
+// 5 timeframes (days back) → 5 stacked coloured segments
+const TIMEFRAMES = [1, 2, 3, 5, 7];
+
+// ============================================================
+//  API  — Fawazahmed0 (free, no key, CDN hosted)
+// ============================================================
+function dateStr(daysAgo) {
+  const d = new Date();
+  d.setDate(d.getDate() - daysAgo);
+  return d.toISOString().split('T')[0];
+}
+
+async function fetchRates(base, tag) {
+  const url = tag === 'latest'
+    ? `https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/${base}.json`
+    : `https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@${tag}/v1/currencies/${base}.json`;
+  const r = await fetch(url);
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  const j = await r.json();
+  return j[base];
+}
+
+// ============================================================
+//  STRENGTH CALCULATION
+// ============================================================
+function getPairs(currencies) {
+  const pairs = [];
+  for (let i = 0; i < currencies.length; i++)
+    for (let j = i+1; j < currencies.length; j++)
+      pairs.push([currencies[i], currencies[j]]);
+  return pairs;
+}
+const PAIRS = getPairs(ALL);
+
+function calcRawScore(todayRates, pastRates, base) {
+  const changes = [];
+  for (const [b, q] of PAIRS) {
+    if (b !== base && q !== base) continue;
+    try {
+      const t = todayRates[b][q];
+      const p = pastRates[b][q];
+      if (!t || !p || p === 0) continue;
+      const pct = (t - p) / p * 100;
+      changes.push(b === base ? pct : -pct);
+    } catch(e) {}
+  }
+  if (!changes.length) return 0;
+  return changes.reduce((a, b) => a + b, 0) / changes.length;
+}
+
+function normalise(rawMap) {
+  const vals = Object.values(rawMap);
+  const min = Math.min(...vals), max = Math.max(...vals);
+  const range = max - min || 0.0001;
+  const out = {};
+  for (const k in rawMap) out[k] = (rawMap[k] - min) / range; // 0..1
+  return out;
+}
+
+// ============================================================
+//  COLOUR — maps 0..1 to segment colour class
+// ============================================================
+function segColor(norm) {
+  if (norm >= 0.75) return '#00cc00';   // strong green
+  if (norm >= 0.55) return '#99cc00';   // lime
+  if (norm >= 0.40) return '#cccc00';   // yellow
+  if (norm >= 0.20) return '#cc6600';   // orange
+  return '#cc0000';                      // red (weak)
+}
+
+// ============================================================
+//  RENDER
+// ============================================================
+function renderRow(containerId, codes, strengthPerTF) {
+  // strengthPerTF = array of { code: norm 0..1 } — one per timeframe
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+
+  for (const code of codes) {
+    const col = document.createElement('div');
+    col.className = 'currency-col';
+
+    const barWrap = document.createElement('div');
+    barWrap.className = 'bar-container';
+
+    const segH = Math.floor((80 - (strengthPerTF.length - 1)) / strengthPerTF.length);
+
+    // Render newest timeframe at bottom, oldest at top (matching livecharts visual)
+    for (let i = strengthPerTF.length - 1; i >= 0; i--) {
+      const norm = strengthPerTF[i][code] ?? 0.5;
+      const seg = document.createElement('div');
+      seg.className = 'bar-segment';
+      seg.style.height = segH + 'px';
+      seg.style.background = segColor(norm);
+      barWrap.appendChild(seg);
+    }
+
+    const lbl = document.createElement('div');
+    lbl.className = 'currency-label';
+    lbl.textContent = LABELS[code];
+
+    col.appendChild(barWrap);
+    col.appendChild(lbl);
+    container.appendChild(col);
+  }
+}
+
+// ============================================================
+//  MAIN
+// ============================================================
+async function loadData() {
+  try {
+    // 1. Fetch today's rates for all base currencies
+    const todayRates = {};
+    for (const base of ALL) {
+      todayRates[base] = await fetchRates(base, 'latest');
+    }
+
+    // 2. For each timeframe, fetch past rates and compute normalised scores
+    const strengthPerTF = [];
+    for (const daysAgo of TIMEFRAMES) {
+      const tag = dateStr(daysAgo);
+      const pastRates = {};
+      for (const base of ALL) {
+        try {
+          pastRates[base] = await fetchRates(base, tag);
+        } catch(e) {
+          // fallback: try one day earlier
+          try {
+            pastRates[base] = await fetchRates(base, dateStr(daysAgo + 1));
+          } catch(e2) {
+            pastRates[base] = todayRates[base]; // no change
+          }
+        }
+      }
+      const raw = {};
+      for (const code of ALL) raw[code] = calcRawScore(todayRates, pastRates, code);
+      strengthPerTF.push(normalise(raw));
+    }
+
+    // 3. Render both rows
+    renderRow('row1', ROW1, strengthPerTF);
+    renderRow('row2', ROW2, strengthPerTF);
+
+    // 4. Timestamp
+    const now = new Date();
+    const hh = String(now.getUTCHours()).padStart(2,'0');
+    const mm = String(now.getUTCMinutes()).padStart(2,'0');
+    const dd = String(now.getUTCDate()).padStart(2,'0');
+    const mo = String(now.getUTCMonth()+1).padStart(2,'0');
+    const yy = String(now.getUTCFullYear()).slice(2);
+    document.getElementById('timestamp').textContent =
+      `Data Updated: ${hh}:${mm}GMT ${dd}/${mo}/${yy}`;
+
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('meters').style.display = '';
+
+  } catch(err) {
+    document.getElementById('loading').textContent =
+      'Error loading data: ' + err.message + '. Please refresh the page.';
+    console.error(err);
+  }
+}
+
+loadData();
+</script>
+</body>
+</html>
